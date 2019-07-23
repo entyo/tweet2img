@@ -1,8 +1,9 @@
-import * as functions from 'firebase-functions';
+import * as functions from "firebase-functions";
+import { app } from "./api";
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//  response.send("Hello from Firebase!");
-// });
+// https://itnext.io/building-a-serverless-restful-api-with-cloud-functions-firestore-and-express-f917a305d4e6
+export const api = functions
+  .runWith({
+    memory: "512MB"
+  })
+  .https.onRequest(app);
