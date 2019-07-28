@@ -1,1 +1,25 @@
+@charset 'utf-8';
+@import "~bulma/sass/utilities/functions";
+
+$twitter: #1ca1f2 !default;
+$twitter-invert: findColorInvert($twitter) !default;
+$pdf: #de0f11 !default;
+$pdf-invert: findColorInvert($pdf) !default;
+$custom-colors: (
+  "twitter": (
+    $twitter,
+    $twitter-invert
+  ),
+  "pdf": (
+    $pdf,
+    $pdf-invert
+  )
+);
+
 @import "~normalize.css/normalize.css";
+@import "~bulma/bulma";
+@import "~rbx/rbx";
+
+.twitter-invert-color {
+  color: $twitter-invert;
+}
