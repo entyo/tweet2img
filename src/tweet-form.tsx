@@ -1,20 +1,35 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { Control, Button, Input, Field, Help } from "rbx";
-import { Either, left, right, isLeft } from "fp-ts/lib/Either";
-import { pattern } from "../functions/src/model";
+import { Either, left, right, isRight, isLeft } from "fp-ts/lib/Either";
+import { pattern, ValidatedTweetURL } from "../functions/src/model";
+import api from "./api";
 
-type ValidationResult = Either<Error, string>;
+type ValidationResult = Either<Error, ValidatedTweetURL>;
 
 function validateTweetURL(urlLike: string): ValidationResult {
   return pattern.test(urlLike)
-    ? right(urlLike)
+    ? right(urlLike as ValidatedTweetURL)
     : left(new Error("不正なURLです"));
 }
 
 export function TweetForm() {
   const [userInputUrl, setUserInputUrl] = useState<string | null>(null);
 
+  const [validatedUrl, setValidatedUrl] = useState<ValidatedTweetURL | null>(
+    null
+  );
+
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  const onClick = () => {
+    if (!userInputUrl) {
+      return;
+    }
+    const validated = validateTweetURL(userInputUrl);
+    if (isRight(validated)) {
+      setValidatedUrl(validated.right);
+    }
+  };
 
   useEffect(() => {
     if (!userInputUrl) {
@@ -22,10 +37,20 @@ export function TweetForm() {
     }
 
     const validated = validateTweetURL(userInputUrl);
-    return isLeft(validated)
+    isLeft(validated)
       ? setValidationError(validated.left.message)
       : setValidationError(null);
   }, [userInputUrl]);
+
+  useEffect(() => {
+    if (!validatedUrl) {
+      return;
+    }
+
+    api
+      .getPDF(validatedUrl)
+      .then(() => console.log("downloaded"), e => console.error(e));
+  }, [validatedUrl]);
 
   return (
     <Field kind="group">
@@ -40,7 +65,11 @@ export function TweetForm() {
         {validationError && <Help color="danger">{validationError}</Help>}
       </Control>
       <Control>
-        <Button disabled={Boolean(validationError)} color="info">
+        <Button
+          onClick={onClick}
+          disabled={Boolean(validationError)}
+          color="info"
+        >
           PDFファイルを生成
         </Button>
       </Control>
