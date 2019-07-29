@@ -9,6 +9,8 @@ export const InvalidArguments = "InvalidArguments" as const;
 
 export const FailedToGeneratePDF = "FailedToGeneratePDF" as const;
 
+export type ServerError = typeof FailedToGeneratePDF;
+
 export type TweetURLError = typeof InvalidArguments | typeof TweetNotFound;
 
 export const pattern = /^https:\/\/twitter\.com\/\w{1,15}\/status\/([0-9]+)$/;

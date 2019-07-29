@@ -2,15 +2,7 @@ import express from "express";
 import * as bodyParser from "body-parser";
 import cors from "cors";
 import { getEnvironmentVariable } from "./environment";
-import {
-  Status,
-  status,
-  Middleware,
-  StatusOpen,
-  ResponseEnded,
-  fromTaskEither,
-  decodeQuery
-} from "hyper-ts";
+import * as H from "hyper-ts";
 import { toRequestHandler } from "hyper-ts/lib/express";
 import {
   TweetURL,
@@ -18,7 +10,8 @@ import {
   InvalidArguments,
   TweetNotFound,
   ValidatedTweetURL,
-  FailedToGeneratePDF
+  FailedToGeneratePDF,
+  ServerError
 } from "./model";
 import * as functions from "firebase-functions";
 import { panicWithErrorLog } from "./util";
@@ -36,24 +29,39 @@ const variablesTE = getEnvironmentVariable(
     : "development"
 );
 
-const badRequest = (message: string) =>
-  status(Status.BadRequest)
-    .closeHeaders()
-    .send(message);
+function badRequest<E = never>(
+  message: string
+): H.Middleware<H.StatusOpen, H.ResponseEnded, E, void> {
+  return pipe(
+    H.status(H.Status.BadRequest),
+    H.ichain(() => H.closeHeaders()),
+    H.ichain(() => H.send(message))
+  );
+}
 
-const notFound = (message: string) =>
-  status(Status.NotFound)
-    .closeHeaders()
-    .send(message);
+function notFound<E = never>(
+  message: string
+): H.Middleware<H.StatusOpen, H.ResponseEnded, E, void> {
+  return pipe(
+    H.status(H.Status.NotFound),
+    H.ichain(() => H.closeHeaders()),
+    H.ichain(() => H.send(message))
+  );
+}
 
-const serverError = (message: string) =>
-  status(Status.NotFound)
-    .closeHeaders()
-    .send(message);
+function serverError<E = never>(
+  message: string
+): H.Middleware<H.StatusOpen, H.ResponseEnded, E, void> {
+  return pipe(
+    H.status(H.Status.ServerError),
+    H.ichain(() => H.closeHeaders()),
+    H.ichain(() => H.send(message))
+  );
+}
 
 const sendError = (
   err: TweetURLError | typeof FailedToGeneratePDF
-): Middleware<StatusOpen, ResponseEnded, never, void> => {
+): H.Middleware<H.StatusOpen, H.ResponseEnded, never, void> => {
   switch (err) {
     case "TweetNotFound":
       return notFound("ツイートは存在しませんでした。");
@@ -94,16 +102,25 @@ if (isLeft(variablesE)) {
   );
 
   // returns a middleware validating `req.param.tweetURL`
-  const parseTweetURLFromQueryMiddleware = decodeQuery(
-    t.strict({
-      tweetURL: TweetURL
-    }).decode
-  ).mapLeft<TweetURLError | typeof FailedToGeneratePDF>(() => InvalidArguments);
+  const m = t.interface({
+    tweetURL: TweetURL
+  });
+  const decoded = H.decodeQuery(m.decode);
+
+  const parseTweetURLFromQueryMiddleware = pipe(
+    decoded,
+    H.mapLeft<t.Errors, ServerError | TweetURLError>(() => InvalidArguments)
+  );
 
   const checkIfTheTweetExistsMiddleware = (query: {
     tweetURL: TweetURL;
-  }): Middleware<StatusOpen, StatusOpen, TweetURLError, ValidatedTweetURL> =>
-    fromTaskEither(
+  }): H.Middleware<
+    H.StatusOpen,
+    H.StatusOpen,
+    ServerError | TweetURLError,
+    ValidatedTweetURL
+  > =>
+    H.fromTaskEither(
       pipe(
         checkIfTheTweetExists(query.tweetURL, {
           consumer_key: TWITTER_CONSUMER_KEY,
@@ -121,22 +138,48 @@ if (isLeft(variablesE)) {
 
   const mapTweetURLToPDF = (
     url: ValidatedTweetURL
-  ): Middleware<StatusOpen, StatusOpen, typeof FailedToGeneratePDF, Buffer> =>
-    fromTaskEither(
+  ): H.Middleware<
+    H.StatusOpen,
+    H.StatusOpen,
+    ServerError | TweetURLError,
+    Buffer
+  > =>
+    H.fromTaskEither(
       TE.tryCatch(() => generatePdf(url), () => FailedToGeneratePDF)
     );
 
-  const respondWithPdf = (pdfBuffer: Buffer) =>
-    status(Status.OK)
-      .header("Content-disposition", `inline; filename="${new Date()}.pdf"`)
-      .header("Content-type", "application/pdf")
-      .closeHeaders()
-      .send(pdfBuffer.toString());
+  const respondWithPdf = (
+    pdfBuffer: Buffer
+  ): H.Middleware<
+    H.StatusOpen,
+    H.ResponseEnded,
+    ServerError | TweetURLError,
+    void
+  > =>
+    pipe(
+      H.status(H.Status.OK),
+      H.ichain(() =>
+        H.header("Content-disposition", `inline; filename="${new Date()}.pdf"`)
+      ),
+      H.ichain(() => H.header("Content-type", "application/pdf")),
+      H.ichain(() => H.closeHeaders()),
+      H.ichain(() => H.send(pdfBuffer.toString()))
+    );
 
-  const getPdf = parseTweetURLFromQueryMiddleware
-    .ichain(checkIfTheTweetExistsMiddleware)
-    .ichain(mapTweetURLToPDF)
-    .ichain(respondWithPdf);
+  const getPdf = pipe(
+    parseTweetURLFromQueryMiddleware,
+    H.ichain(checkIfTheTweetExistsMiddleware),
+    H.ichain(mapTweetURLToPDF),
+    H.ichain(respondWithPdf)
+  );
 
-  app.get("/pdf", toRequestHandler(getPdf.orElse(sendError)));
+  app.get(
+    "/pdf",
+    toRequestHandler(
+      pipe(
+        getPdf,
+        H.orElse(sendError)
+      )
+    )
+  );
 }

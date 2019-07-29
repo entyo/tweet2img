@@ -20,7 +20,7 @@
     "firebase-admin": "^8.3.0",
     "firebase-functions": "^3.2.0",
     "fp-ts": "^2.0.3",
-    "hyper-ts": "^0.4.0",
+    "hyper-ts": "git@github.com:gcanti/hyper-ts.git#0.5.0-lib",
     "io-ts": "^2.0.0",
     "io-ts-types": "^0.5.0",
     "monocle-ts": "^2.0.0",
