@@ -2,14 +2,19 @@ import puppeteer from "puppeteer";
 import { ValidatedTweetURL } from "../model";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/pipeable";
+import { readFileSync } from "fs";
+import { join } from "path";
 
 const FAILED_TO_LAUNCH_PUPPETEER = "Puppeteerの起動に失敗しました。";
 const FAILED_TO_OPEN_NEW_PAGE =
   "Puppeteerで新しいページを開こうとしましたが、失敗しました。";
 const FAILED_TO_SET_CONTENT =
   "PuppeteerでHTMLをレンダリングしようとしましたが、失敗しました。";
+const FAILED_TO_LOAD_ASSET = "アセットファイルの読み込みに失敗しました。";
 const FAILED_TO_GENERATE_PDF =
   "PuppeteerでPDFを生成しようとしましたが、失敗しました。";
+const FAILED_TO_GENERATE_WIDGET =
+  "ツイートのウィジェットがレンダリングできませんでした。";
 const FAILED_TO_CLOSE_PUPPETEER = "Puppeteerが異常終了しました。";
 
 export function generatePdf(
@@ -31,6 +36,27 @@ export function generatePdf(
         TE.tryCatch(
           () => page.setContent(generateHTML(tweetURL)),
           () => FAILED_TO_SET_CONTENT
+        ),
+        TE.map(() => page)
+      )
+    ),
+    TE.chain(page =>
+      pipe(
+        TE.tryCatch(
+          () =>
+            page.evaluate(
+              readFileSync(join(__dirname, "..", "widget.js"), "utf8")
+            ),
+          () => FAILED_TO_LOAD_ASSET
+        ),
+        TE.map(() => page)
+      )
+    ),
+    TE.chain(page =>
+      pipe(
+        TE.tryCatch(
+          () => page.waitForSelector("#twitter-widget-0"),
+          () => FAILED_TO_GENERATE_WIDGET
         ),
         TE.map(() => page)
       )
@@ -84,11 +110,6 @@ function generateHTML(tweetURL: ValidatedTweetURL): string {
       <blockquote class="twitter-tweet">
         <a href="${tweetURL}"></a>
       </blockquote>
-      <script
-        async
-        src="https://platform.twitter.com/widgets.js"
-        charset="utf-8"
-      ></script>
     </body>
   </html>
   `;

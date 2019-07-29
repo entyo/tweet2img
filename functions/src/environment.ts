@@ -15,7 +15,6 @@ export function getEnvironmentVariable(
   const path = join(
     __dirname,
     "..",
-    "..",
     env === "production" ? ".env" : ".env.dev"
   );
   const { parsed } = dotenv.config({ path });
