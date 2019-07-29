@@ -11,7 +11,7 @@ class Api {
     this.API_ROOT = API_ROOT;
   }
 
-  getPDF(tweetURL: ValidatedTweetURL): Promise<unknown> {
+  getPDF(tweetURL: ValidatedTweetURL): Promise<string> {
     return axios
       .get(`${this.API_ROOT}/pdf?tweetURL=${tweetURL}`)
       .then(res => res.data);

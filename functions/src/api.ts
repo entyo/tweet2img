@@ -79,13 +79,7 @@ if (isLeft(variablesE)) {
   panicWithErrorLog(variablesE.left.message)();
 } else {
   const environtVariable = variablesE.right;
-  const {
-    ORIGIN,
-    TWITTER_CONSUMER_KEY,
-    TWITTER_CONSUMER_SECRET,
-    TWITTER_ACCESS_TOKEN,
-    TWITTER_ACCESS_TOKEN_SECRET
-  } = environtVariable;
+  const { ORIGIN, TWITTER_BEARER_TOKEN } = environtVariable;
 
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: false }));
@@ -123,10 +117,7 @@ if (isLeft(variablesE)) {
     H.fromTaskEither(
       pipe(
         checkIfTheTweetExists(query.tweetURL, {
-          consumer_key: TWITTER_CONSUMER_KEY,
-          consumer_secret: TWITTER_CONSUMER_SECRET,
-          access_token: TWITTER_ACCESS_TOKEN,
-          access_token_secret: TWITTER_ACCESS_TOKEN_SECRET
+          TWITTER_BEARER_TOKEN
         }),
         TE.chain(exists =>
           exists

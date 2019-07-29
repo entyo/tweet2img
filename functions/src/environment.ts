@@ -6,10 +6,7 @@ import { left, right } from "fp-ts/lib/Either";
 export type EnvironmentVariable = {
   ORIGIN: string;
   API_ROOT: string;
-  TWITTER_CONSUMER_KEY: string;
-  TWITTER_CONSUMER_SECRET: string;
-  TWITTER_ACCESS_TOKEN: string;
-  TWITTER_ACCESS_TOKEN_SECRET: string;
+  TWITTER_BEARER_TOKEN: string;
 };
 
 export function getEnvironmentVariable(
@@ -36,11 +33,6 @@ function isEnvironmentVariable(
     parsed !== undefined &&
     typeof (parsed as EnvironmentVariable).ORIGIN === "string" &&
     typeof (parsed as EnvironmentVariable).API_ROOT === "string" &&
-    typeof (parsed as EnvironmentVariable).TWITTER_CONSUMER_KEY === "string" &&
-    typeof (parsed as EnvironmentVariable).TWITTER_CONSUMER_SECRET ===
-      "string" &&
-    typeof (parsed as EnvironmentVariable).TWITTER_ACCESS_TOKEN === "string" &&
-    typeof (parsed as EnvironmentVariable).TWITTER_ACCESS_TOKEN_SECRET ===
-      "string"
+    typeof (parsed as EnvironmentVariable).TWITTER_BEARER_TOKEN === "string"
   );
 }

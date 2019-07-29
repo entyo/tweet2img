@@ -15,7 +15,7 @@ export type TweetURLError = typeof InvalidArguments | typeof TweetNotFound;
 
 export const pattern = /^https:\/\/twitter\.com\/\w{1,15}\/status\/([0-9]+)$/;
 
-export type TweetID = number & { readonly __DegreeBrand: unique symbol };
+export type TweetID = string & { readonly __DegreeBrand: unique symbol };
 
 export type TwitterUser = {
   id: string;
@@ -23,10 +23,7 @@ export type TwitterUser = {
 };
 
 export type TwitSettings = {
-  consumer_key: string;
-  consumer_secret: string;
-  access_token: string;
-  access_token_secret: string;
+  TWITTER_BEARER_TOKEN: string;
 };
 
 export type ValidatedTweetURL = TweetURL & {
