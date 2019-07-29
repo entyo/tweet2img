@@ -11,7 +11,7 @@ export const FailedToGeneratePDF = "FailedToGeneratePDF" as const;
 
 export type TweetURLError = typeof InvalidArguments | typeof TweetNotFound;
 
-export const pattern = /https:\/\/twitter\.com\/\w{1,15}\/status\/([0-9]+)/;
+export const pattern = /^https:\/\/twitter\.com\/\w{1,15}\/status\/([0-9]+)$/;
 
 export type TweetID = number & { readonly __DegreeBrand: unique symbol };
 
