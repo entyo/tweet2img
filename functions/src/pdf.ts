@@ -1,20 +1,59 @@
 import puppeteer from "puppeteer";
 import { ValidatedTweetURL } from "../model";
+import * as TE from "fp-ts/lib/TaskEither";
+import { pipe } from "fp-ts/lib/pipeable";
 
-export async function generatePdf(
+const FAILED_TO_LAUNCH_PUPPETEER = "Puppeteerの起動に失敗しました。";
+const FAILED_TO_OPEN_NEW_PAGE =
+  "Puppeteerで新しいページを開こうとしましたが、失敗しました。";
+const FAILED_TO_SET_CONTENT =
+  "PuppeteerでHTMLをレンダリングしようとしましたが、失敗しました。";
+const FAILED_TO_GENERATE_PDF =
+  "PuppeteerでPDFを生成しようとしましたが、失敗しました。";
+const FAILED_TO_CLOSE_PUPPETEER = "Puppeteerが異常終了しました。";
+
+export function generatePdf(
   tweetURL: ValidatedTweetURL
-): Promise<Buffer> {
-  console.info({ tweetURL });
-  const browser = await puppeteer.launch({
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
-  });
-  const page = await browser.newPage();
-  await page.setContent(generateHTML(tweetURL));
-  const buffer = await page.pdf({
-    format: "A4"
-  });
-  await browser.close();
-  return buffer;
+): TE.TaskEither<string, Buffer> {
+  return pipe(
+    TE.tryCatch(
+      () =>
+        puppeteer.launch({
+          args: ["--no-sandbox", "--disable-setuid-sandbox"]
+        }),
+      () => FAILED_TO_LAUNCH_PUPPETEER
+    ),
+    TE.chain(browser =>
+      TE.tryCatch(() => browser.newPage(), () => FAILED_TO_OPEN_NEW_PAGE)
+    ),
+    TE.chain(page =>
+      pipe(
+        TE.tryCatch(
+          () => page.setContent(generateHTML(tweetURL)),
+          () => FAILED_TO_SET_CONTENT
+        ),
+        TE.map(() => page)
+      )
+    ),
+    TE.chain(page =>
+      pipe(
+        TE.tryCatch(
+          () =>
+            page.pdf({
+              format: "A4"
+            }),
+          () => FAILED_TO_GENERATE_PDF
+        ),
+        TE.map(buffer => [page, buffer] as const)
+      )
+    ),
+    TE.chain(([page, buffer]) =>
+      pipe(
+        TE.tryCatch(() => page.close(), () => FAILED_TO_CLOSE_PUPPETEER),
+        TE.map(() => buffer)
+      )
+    )
+  );
 }
 
 function generateHTML(tweetURL: ValidatedTweetURL): string {

@@ -139,7 +139,13 @@ if (isLeft(variablesE)) {
     Buffer
   > =>
     H.fromTaskEither(
-      TE.tryCatch(() => generatePdf(url), () => FailedToGeneratePDF)
+      pipe(
+        generatePdf(url),
+        TE.mapLeft(e => {
+          console.error(e);
+          return FailedToGeneratePDF;
+        })
+      )
     );
 
   const respondWithPdf = (
