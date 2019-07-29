@@ -1,4 +1,4 @@
-import { ValidatedTweetURL } from "../functions/src/model";
+import { ValidatedTweetURL } from "../functions/model";
 import axios from "axios";
 
 class Api {

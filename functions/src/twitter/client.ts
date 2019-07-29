@@ -6,7 +6,7 @@ import {
   pattern,
   TweetID,
   TwitSettings
-} from "../model";
+} from "../../model";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
 

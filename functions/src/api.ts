@@ -11,8 +11,11 @@ import {
   TweetNotFound,
   ValidatedTweetURL,
   FailedToGeneratePDF,
-  ServerError
-} from "./model";
+  ServerError,
+  TweetNotFoundMessage,
+  InvalidRequestMessage,
+  InternalServerErrorMessage
+} from "../model";
 import * as functions from "firebase-functions";
 import { panicWithErrorLog } from "./util";
 import { isLeft } from "fp-ts/lib/Either";
@@ -64,11 +67,11 @@ const sendError = (
 ): H.Middleware<H.StatusOpen, H.ResponseEnded, never, void> => {
   switch (err) {
     case "TweetNotFound":
-      return notFound("ツイートは存在しませんでした。");
+      return notFound(TweetNotFoundMessage);
     case "InvalidArguments":
-      return badRequest("不正なリクエストです。");
+      return badRequest(InvalidRequestMessage);
     case "FailedToGeneratePDF":
-      return serverError("サーバサイドでエラーが発生しました。");
+      return serverError(InternalServerErrorMessage);
   }
 };
 

@@ -1,15 +1,18 @@
 import puppeteer from "puppeteer";
-import { ValidatedTweetURL } from "./model";
+import { ValidatedTweetURL } from "../model";
 
 export async function generatePdf(
-  tweetURl: ValidatedTweetURL
+  tweetURL: ValidatedTweetURL
 ): Promise<Buffer> {
+  console.info({ tweetURL });
   const browser = await puppeteer.launch({
     args: ["--no-sandbox", "--disable-setuid-sandbox"]
   });
   const page = await browser.newPage();
-  await page.setContent(generateHTML(tweetURl));
-  const buffer = await page.pdf({ format: "A4" });
+  await page.setContent(generateHTML(tweetURL));
+  const buffer = await page.pdf({
+    format: "A4"
+  });
   await browser.close();
   return buffer;
 }
@@ -19,26 +22,28 @@ function generateHTML(tweetURL: ValidatedTweetURL): string {
   <!DOCTYPE html>
   <html>
     <head>
-      body {
-        margin: 0px;
-      }
-      
-      #twitter-widget-0 {
-        width: 100%;
-      }
-      
-      .container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 1.2rem;
-        width: 100vw;
-        height: 100vh;
-      }
+      <style>
+        body {
+          margin: 0px;
+        }
+  
+        #twitter-widget-0 {
+          width: 100%;
+        }
+  
+        .container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          padding: 1.2rem;
+          width: 100vw;
+          height: 100vh;
+        }
+      </style>
     </head>
     <body>
       <blockquote class="twitter-tweet">
-        <a href=${tweetURL}></a>
+        <a href="${tweetURL}"></a>
       </blockquote>
       <script
         async

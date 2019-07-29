@@ -29,3 +29,13 @@ export type TwitSettings = {
 export type ValidatedTweetURL = TweetURL & {
   readonly __ValidatedTweetURLBrand: unique symbol;
 };
+
+export const TweetNotFoundMessage = "ツイートは存在しませんでした。";
+export const InvalidRequestMessage = "不正なリクエストです。";
+export const InternalServerErrorMessage =
+  "サーバサイドでエラーが発生しました。";
+
+export type PDFErrorMessage =
+  | typeof TweetNotFoundMessage
+  | typeof InvalidRequestMessage
+  | typeof InternalServerErrorMessage;
