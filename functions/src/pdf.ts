@@ -107,9 +107,12 @@ function generateHTML(tweetURL: ValidatedTweetURL): string {
       </style>
     </head>
     <body>
-      <blockquote class="twitter-tweet">
-        <a href="${tweetURL}"></a>
-      </blockquote>
+      </script>
+      <div class="container">
+        <blockquote class="twitter-tweet">
+          <a href="${tweetURL}"></a>
+        </blockquote>
+      </div>
     </body>
   </html>
   `;
