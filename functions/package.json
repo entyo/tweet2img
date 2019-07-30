@@ -21,11 +21,12 @@
     "firebase-admin": "^8.3.0",
     "firebase-functions": "^3.2.0",
     "fp-ts": "^2.0.3",
-    "hyper-ts": "git@github.com:gcanti/hyper-ts.git#0.5.0-lib",
+    "hyper-ts": "https://github.com/gcanti/hyper-ts.git#0.5.0-lib",
     "io-ts": "^2.0.0",
     "io-ts-types": "^0.5.0",
     "monocle-ts": "^2.0.0",
-    "puppeteer": "1.19.0"
+    "puppeteer": "1.19.0",
+    "dotenv": "^8.0.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.5",
@@ -33,7 +34,6 @@
     "@types/express": "4.17.0",
     "@types/node": "^12.6.8",
     "@types/puppeteer": "1.19.0",
-    "dotenv": "^8.0.0",
     "firebase-functions-test": "^0.1.6",
     "tslint": "~5.18.0",
     "typescript": "~3.5.3"

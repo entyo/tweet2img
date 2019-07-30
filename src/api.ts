@@ -11,9 +11,15 @@ class Api {
     this.API_ROOT = API_ROOT;
   }
 
-  getPDF(tweetURL: ValidatedTweetURL): Promise<string> {
+  /**
+   *
+   * TwitterのStatus URLを取って、対応する画像をArrayBufferで返す
+   */
+  getImage(tweetURL: ValidatedTweetURL): Promise<ArrayBuffer> {
     return axios
-      .get(`${this.API_ROOT}/pdf?tweetURL=${tweetURL}`)
+      .get(`${this.API_ROOT}/img?tweetURL=${tweetURL}`, {
+        responseType: "arraybuffer"
+      })
       .then(res => res.data);
   }
 }

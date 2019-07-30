@@ -1,5 +1,5 @@
 {
-  "name": "tweet2pdf",
+  "name": "tweet2img",
   "version": "0.0.0",
   "description": "## .env",
   "main": "index.js",
@@ -13,7 +13,8 @@
     "normalize.css": "^8.0.1",
     "rbx": "^2.2.0",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "dotenv": "^8.0.0"
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.1",
@@ -24,7 +25,6 @@
     "@types/react-router-dom": "^4.3.4",
     "cross-env": "^5.2.0",
     "css-loader": "^3.1.0",
-    "dotenv": "^8.0.0",
     "html-webpack-plugin": "^3.2.0",
     "inline-source-map": "^0.6.2",
     "node-sass": "^4.12.0",
@@ -45,19 +45,18 @@
   "scripts": {
     "start": "firebase serve",
     "deploy": "firebase deploy",
-    "predeploy": "npm run test",
     "build:prod": "cross-env TS_NODE_PROJECT=\"tsconfig.webpack.json\" webpack --config webpack.config.ts --mode production",
     "build:dev": "cross-env TS_NODE_PROJECT=\"tsconfig.webpack.json\" webpack --config webpack.config.ts --mode development",
     "build:functions": "npm run --prefix functions build"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/entyo/tweet2pdf.git"
+    "url": "git+https://github.com/entyo/tweet2img.git"
   },
   "author": "e_ntyo",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/entyo/tweet2pdf/issues"
+    "url": "https://github.com/entyo/tweet2img/issues"
   },
-  "homepage": "https://github.com/entyo/tweet2pdf#readme"
+  "homepage": "https://github.com/entyo/tweet2img#readme"
 }

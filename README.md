@@ -1,4 +1,4 @@
-# tweet2pdf
+# tweet2img
 
 ## .env
 
