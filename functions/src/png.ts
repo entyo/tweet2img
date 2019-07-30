@@ -1,13 +1,13 @@
-import puppeteer from "puppeteer";
-import { ValidatedTweetURL } from "../model";
-import * as TE from "fp-ts/lib/TaskEither";
-import { pipe } from "fp-ts/lib/pipeable";
+import puppeteer from 'puppeteer';
+import { ValidatedTweetURL } from '../model';
+import * as TE from 'fp-ts/lib/TaskEither';
+import { pipe } from 'fp-ts/lib/pipeable';
 
 const errorHandler = (fallbackErrorMessage: string, reason?: unknown) => {
   // Error | string | unknown
   return reason && reason instanceof Error
     ? reason.message
-    : typeof reason === "string"
+    : typeof reason === 'string'
     ? reason
     : fallbackErrorMessage;
 };
@@ -19,15 +19,15 @@ export function generateImage(
     TE.tryCatch(
       () =>
         puppeteer.launch({
-          args: ["--no-sandbox", "--disable-setuid-sandbox"],
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
           headless: true
         }),
-      reason => errorHandler("puppeteer.launchが例外をthrowしました", reason)
+      reason => errorHandler('puppeteer.launchが例外をthrowしました', reason)
     ),
     TE.chain(browser =>
       TE.tryCatch(
         () => browser.newPage(),
-        reason => errorHandler("browser.newPageが例外をthrowしました", reason)
+        reason => errorHandler('browser.newPageが例外をthrowしました', reason)
       )
     ),
     TE.chain(page =>
@@ -36,7 +36,7 @@ export function generateImage(
           () =>
             page.setViewport({ width: 1920, height: 0, deviceScaleFactor: 2 }),
           reason =>
-            errorHandler("page.setViewportが例外をthrowしました", reason)
+            errorHandler('page.setViewportが例外をthrowしました', reason)
         ),
         TE.map(() => page)
       )
@@ -50,10 +50,10 @@ export function generateImage(
                 generateHTML(tweetURL)
               )}`,
               {
-                waitUntil: "networkidle0"
+                waitUntil: 'networkidle0'
               }
             ),
-          reason => errorHandler("page.gotoが例外をthrowしました", reason)
+          reason => errorHandler('page.gotoが例外をthrowしました', reason)
         ),
         TE.map(() => page)
       )
@@ -61,10 +61,10 @@ export function generateImage(
     TE.chain(page =>
       pipe(
         TE.tryCatch(
-          () => page.$("#twitter-widget-0"),
+          () => page.$('#twitter-widget-0'),
           reason =>
             errorHandler(
-              "page.$('#twitter-widget-0')が例外をthrowしました",
+              'page.$(\'#twitter-widget-0\')が例外をthrowしました',
               reason
             )
         ),
@@ -74,17 +74,17 @@ export function generateImage(
                 () => widget.boundingBox(),
                 reason =>
                   errorHandler(
-                    "widget.boundingBox()が例外をthrowしました",
+                    'widget.boundingBox()が例外をthrowしました',
                     reason
                   )
               )
-            : TE.left("#twitter-widget-0が見つかりませんでした")
+            : TE.left('#twitter-widget-0が見つかりませんでした')
         ),
         TE.chain(bb =>
           bb
             ? TE.right(bb)
             : TE.left(
-                "page.$('#twitter-widget-0').boundingBox()が例外をthrowしました"
+                'page.$(\'#twitter-widget-0\').boundingBox()が例外をthrowしました'
               )
         ),
         TE.map(clip => [page, clip] as const)
@@ -96,7 +96,7 @@ export function generateImage(
           () => page.screenshot({ clip }),
           reason =>
             errorHandler(
-              "page.screenshot({ clip })が例外をthrowしました",
+              'page.screenshot({ clip })が例外をthrowしました',
               reason
             )
         ),
@@ -107,7 +107,7 @@ export function generateImage(
       pipe(
         TE.tryCatch(
           () => page.close(),
-          reason => errorHandler("page.close()が例外をthrowしました", reason)
+          reason => errorHandler('page.close()が例外をthrowしました', reason)
         ),
         TE.map(() => image)
       )

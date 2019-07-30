@@ -1,9 +1,9 @@
-import express from "express";
-import * as bodyParser from "body-parser";
-import cors from "cors";
-import { getEnvironmentVariable } from "./environment";
-import * as H from "hyper-ts";
-import { toRequestHandler } from "hyper-ts/lib/express";
+import express from 'express';
+import * as bodyParser from 'body-parser';
+import cors from 'cors';
+import { getEnvironmentVariable } from './environment';
+import * as H from 'hyper-ts';
+import { toRequestHandler } from 'hyper-ts/lib/express';
 import {
   TweetURL,
   TweetURLError,
@@ -15,21 +15,21 @@ import {
   TweetNotFoundMessage,
   InvalidRequestMessage,
   InternalServerErrorMessage
-} from "../model";
-import * as functions from "firebase-functions";
-import { panicWithErrorLog } from "./util";
-import { isLeft } from "fp-ts/lib/Either";
-import { checkIfTheTweetExists } from "./twitter/client";
-import { pipe } from "fp-ts/lib/pipeable";
-import * as TE from "fp-ts/lib/TaskEither";
-import { generateImage } from "./png";
-import * as t from "io-ts";
+} from '../model';
+import * as functions from 'firebase-functions';
+import { panicWithErrorLog } from './util';
+import { isLeft } from 'fp-ts/lib/Either';
+import { checkIfTheTweetExists } from './twitter/client';
+import { pipe } from 'fp-ts/lib/pipeable';
+import * as TE from 'fp-ts/lib/TaskEither';
+import { generateImage } from './png';
+import * as t from 'io-ts';
 
 const config = functions.config();
 const variablesTE = getEnvironmentVariable(
-  config.runtime && config.runtime.env === "production"
-    ? "production"
-    : "development"
+  config.runtime && config.runtime.env === 'production'
+    ? 'production'
+    : 'development'
 );
 
 function badRequest<E = never>(
@@ -66,11 +66,11 @@ const sendError = (
   err: TweetURLError | typeof FailedToGenerateImage
 ): H.Middleware<H.StatusOpen, H.ResponseEnded, never, void> => {
   switch (err) {
-    case "TweetNotFound":
+    case 'TweetNotFound':
       return notFound(TweetNotFoundMessage);
-    case "InvalidArguments":
+    case 'InvalidArguments':
       return badRequest(InvalidRequestMessage);
-    case "FailedToGenerateImage":
+    case 'FailedToGenerateImage':
       return serverError(InternalServerErrorMessage);
   }
 };
@@ -158,7 +158,7 @@ if (isLeft(variablesE)) {
     pipe(
       H.status(H.Status.OK),
       H.ichain(() =>
-        H.header("Content-disposition", `inline; filename="${new Date()}.png"`)
+        H.header('Content-disposition', `inline; filename="${new Date()}.png"`)
       ),
       H.ichain(() => H.contentType(H.MediaType.imagePNG)),
       H.ichain(() => H.closeHeaders()),
@@ -173,7 +173,7 @@ if (isLeft(variablesE)) {
   );
 
   app.get(
-    "/img",
+    '/img',
     toRequestHandler(
       pipe(
         getImage,

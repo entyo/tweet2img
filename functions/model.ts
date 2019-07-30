@@ -1,13 +1,13 @@
-import { NonEmptyString } from "io-ts-types/lib/NonEmptyString";
+import { NonEmptyString } from 'io-ts-types/lib/NonEmptyString';
 
 export type TweetURL = NonEmptyString;
 export const TweetURL = NonEmptyString;
 
-export const TweetNotFound = "TweetNotFound" as const;
+export const TweetNotFound = 'TweetNotFound' as const;
 
-export const InvalidArguments = "InvalidArguments" as const;
+export const InvalidArguments = 'InvalidArguments' as const;
 
-export const FailedToGenerateImage = "FailedToGenerateImage" as const;
+export const FailedToGenerateImage = 'FailedToGenerateImage' as const;
 
 export type ServerError = typeof FailedToGenerateImage;
 
@@ -30,10 +30,10 @@ export type ValidatedTweetURL = TweetURL & {
   readonly __ValidatedTweetURLBrand: unique symbol;
 };
 
-export const TweetNotFoundMessage = "ツイートは存在しませんでした。";
-export const InvalidRequestMessage = "不正なリクエストです。";
+export const TweetNotFoundMessage = 'ツイートは存在しませんでした。';
+export const InvalidRequestMessage = '不正なリクエストです。';
 export const InternalServerErrorMessage =
-  "サーバサイドでエラーが発生しました。";
+  'サーバサイドでエラーが発生しました。';
 
 export type ImageErrorMessage =
   | typeof TweetNotFoundMessage

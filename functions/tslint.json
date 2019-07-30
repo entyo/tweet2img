@@ -1,5 +1,4 @@
 {
-  "extends": "tslint-config-standard",
   "rules": {
     // -- Strict errors --
     // These lint rules are likely always a good idea.

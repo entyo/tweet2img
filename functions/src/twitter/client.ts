@@ -1,14 +1,14 @@
-import axios from "axios";
-import * as TE from "fp-ts/lib/TaskEither";
+import axios from 'axios';
+import * as TE from 'fp-ts/lib/TaskEither';
 import {
   TweetNotFound,
   TweetURL,
   pattern,
   TweetID,
   TwitSettings
-} from "../../model";
-import * as O from "fp-ts/lib/Option";
-import { pipe } from "fp-ts/lib/pipeable";
+} from '../../model';
+import * as O from 'fp-ts/lib/Option';
+import { pipe } from 'fp-ts/lib/pipeable';
 
 export function getStatusId(url: TweetURL): O.Option<TweetID> {
   return pipe(
@@ -54,7 +54,7 @@ function tweetExists(data: unknown, id: TweetID): boolean {
   return (
     Array.isArray(data) &&
     data.length === 1 &&
-    typeof data[0] === "object" &&
-    data[0]["id_str"] === id
+    typeof data[0] === 'object' &&
+    data[0]['id_str'] === id
   );
 }

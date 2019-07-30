@@ -1,7 +1,7 @@
-import dotenv, { DotenvParseOutput } from "dotenv";
-import { join } from "path";
-import { IOEither, fromEither } from "fp-ts/lib/IOEither";
-import { left, right } from "fp-ts/lib/Either";
+import dotenv, { DotenvParseOutput } from 'dotenv';
+import { join } from 'path';
+import { IOEither, fromEither } from 'fp-ts/lib/IOEither';
+import { left, right } from 'fp-ts/lib/Either';
 
 export type EnvironmentVariable = {
   ORIGIN: string;
@@ -10,12 +10,12 @@ export type EnvironmentVariable = {
 };
 
 export function getEnvironmentVariable(
-  env: "development" | "production"
+  env: 'development' | 'production'
 ): IOEither<Error, EnvironmentVariable> {
   const path = join(
     __dirname,
-    "..",
-    env === "production" ? ".env" : ".env.dev"
+    '..',
+    env === 'production' ? '.env' : '.env.dev'
   );
   const { parsed } = dotenv.config({ path });
   return fromEither(
@@ -30,8 +30,8 @@ function isEnvironmentVariable(
 ): parsed is EnvironmentVariable {
   return (
     parsed !== undefined &&
-    typeof (parsed as EnvironmentVariable).ORIGIN === "string" &&
-    typeof (parsed as EnvironmentVariable).API_ROOT === "string" &&
-    typeof (parsed as EnvironmentVariable).TWITTER_BEARER_TOKEN === "string"
+    typeof (parsed as EnvironmentVariable).ORIGIN === 'string' &&
+    typeof (parsed as EnvironmentVariable).API_ROOT === 'string' &&
+    typeof (parsed as EnvironmentVariable).TWITTER_BEARER_TOKEN === 'string'
   );
 }
