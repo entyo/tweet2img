@@ -2,19 +2,14 @@ import puppeteer from "puppeteer";
 import { ValidatedTweetURL } from "../model";
 import * as TE from "fp-ts/lib/TaskEither";
 import { pipe } from "fp-ts/lib/pipeable";
-import { readFileSync } from "fs";
-import { join } from "path";
 
 const FAILED_TO_LAUNCH_PUPPETEER = "Puppeteerの起動に失敗しました。";
 const FAILED_TO_OPEN_NEW_PAGE =
   "Puppeteerで新しいページを開こうとしましたが、失敗しました。";
 const FAILED_TO_SET_CONTENT =
   "PuppeteerでHTMLをレンダリングしようとしましたが、失敗しました。";
-const FAILED_TO_LOAD_ASSET = "アセットファイルの読み込みに失敗しました。";
 const FAILED_TO_GENERATE_PDF =
   "PuppeteerでPDFを生成しようとしましたが、失敗しました。";
-const FAILED_TO_GENERATE_WIDGET =
-  "ツイートのウィジェットがレンダリングできませんでした。";
 const FAILED_TO_CLOSE_PUPPETEER = "Puppeteerが異常終了しました。";
 
 export function generatePdf(
@@ -24,7 +19,8 @@ export function generatePdf(
     TE.tryCatch(
       () =>
         puppeteer.launch({
-          args: ["--no-sandbox", "--disable-setuid-sandbox"]
+          args: ["--no-sandbox", "--disable-setuid-sandbox"],
+          headless: true
         }),
       () => FAILED_TO_LAUNCH_PUPPETEER
     ),
@@ -34,7 +30,15 @@ export function generatePdf(
     TE.chain(page =>
       pipe(
         TE.tryCatch(
-          () => page.setContent(generateHTML(tweetURL)),
+          () =>
+            page.goto(
+              `data:text/html;charset=UTF-8,${encodeURIComponent(
+                generateHTML(tweetURL)
+              )}`,
+              {
+                waitUntil: "networkidle0"
+              }
+            ),
           () => FAILED_TO_SET_CONTENT
         ),
         TE.map(() => page)
@@ -44,29 +48,9 @@ export function generatePdf(
       pipe(
         TE.tryCatch(
           () =>
-            page.evaluate(
-              readFileSync(join(__dirname, "..", "widget.js"), "utf8")
-            ),
-          () => FAILED_TO_LOAD_ASSET
-        ),
-        TE.map(() => page)
-      )
-    ),
-    TE.chain(page =>
-      pipe(
-        TE.tryCatch(
-          () => page.waitForSelector("#twitter-widget-0"),
-          () => FAILED_TO_GENERATE_WIDGET
-        ),
-        TE.map(() => page)
-      )
-    ),
-    TE.chain(page =>
-      pipe(
-        TE.tryCatch(
-          () =>
             page.pdf({
-              format: "A4"
+              format: "A4",
+              path: "yo.pdf"
             }),
           () => FAILED_TO_GENERATE_PDF
         ),
@@ -107,6 +91,7 @@ function generateHTML(tweetURL: ValidatedTweetURL): string {
       </style>
     </head>
     <body>
+      <script async src="https://platform.twitter.com/widgets.js" charset="utf-8">
       </script>
       <div class="container">
         <blockquote class="twitter-tweet">
