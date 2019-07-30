@@ -5,7 +5,7 @@ import { tryCatch } from "fp-ts/lib/TaskEither";
 import { pattern, ValidatedTweetURL } from "../functions/model";
 import api from "./api";
 import {
-  PDFErrorMessage,
+  ImageErrorMessage,
   TweetNotFoundMessage,
   InvalidRequestMessage,
   InternalServerErrorMessage
@@ -30,13 +30,13 @@ export function TweetForm() {
 
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const [pdfRequestPending, setPdfRequestPending] = useState(false);
+  const [imgRequestPending, setImageRequestPending] = useState(false);
 
-  const [pdfRequestError, setPdfRequestError] = useState<
-    PDFErrorMessage | typeof UnknownError | null
+  const [imgRequestError, setImageRequestError] = useState<
+    ImageErrorMessage | typeof UnknownError | null
   >(null);
 
-  const [pdf, setPdf] = useState<string | null>(null);
+  const [img, setImage] = useState<ArrayBuffer | null>(null);
 
   const onClick = () => {
     if (!userInputUrl) {
@@ -65,9 +65,9 @@ export function TweetForm() {
     }
 
     (async () => {
-      setPdfRequestPending(true);
-      const pdfTask = await tryCatch(
-        () => api.getPDF(validatedUrl),
+      setImageRequestPending(true);
+      const imgTask = await tryCatch(
+        () => api.getImage(validatedUrl),
         e =>
           typeof e === "string" &&
           [
@@ -75,30 +75,31 @@ export function TweetForm() {
             InvalidRequestMessage,
             InternalServerErrorMessage
           ].includes(e)
-            ? (e as PDFErrorMessage)
+            ? (e as ImageErrorMessage)
             : (UnknownError as typeof UnknownError)
       )();
-      setPdfRequestPending(false);
-      if (isLeft(pdfTask)) {
-        setPdfRequestError(pdfTask.left);
+      setImageRequestPending(false);
+      if (isLeft(imgTask)) {
+        setImageRequestError(imgTask.left);
       } else {
-        setPdf(pdfTask.right);
+        setImage(imgTask.right);
       }
     })();
   }, [validatedUrl]);
 
   useEffect(() => {
-    if (!pdf) {
+    if (!img) {
       return;
     }
-    setPdfRequestError(null);
-    // ファイルダウンロード
-    const url = window.URL.createObjectURL(
-      new Blob([pdf], { type: "application/pdf" })
-    );
+    setImageRequestError(null);
+    // ArrayBuffer -> Blob
+    const blob = new Blob([img], { type: "image/png" });
+    // Blob -> DataURI
+    const url = window.URL.createObjectURL(blob);
+    // DataURI -> <a download="tweet.png" href=`${DataURI}` ></a>
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `tweet.pdf`);
+    link.setAttribute("download", `tweet.png`);
     // 1. Append to html page
     document.body.appendChild(link);
     // 2. Force download
@@ -110,7 +111,7 @@ export function TweetForm() {
       }
     };
     return clieanUp;
-  }, [pdf]);
+  }, [img]);
 
   return (
     <>
@@ -131,15 +132,15 @@ export function TweetForm() {
             disabled={Boolean(validationError)}
             color="info"
           >
-            PDFファイルを生成
+            画像ファイルを生成
           </Button>
         </Control>
       </Field>
-      {pdfRequestPending && <Progress />}
-      {pdfRequestError && (
+      {imgRequestPending && <Progress />}
+      {imgRequestError && (
         <Message color="danger">
           <Message.Header>エラー</Message.Header>
-          <Message.Body>{pdfRequestError}</Message.Body>
+          <Message.Body>{imgRequestError}</Message.Body>
         </Message>
       )}
     </>

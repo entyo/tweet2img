@@ -3,16 +3,10 @@
 
 $twitter: #1ca1f2 !default;
 $twitter-invert: findColorInvert($twitter) !default;
-$pdf: #de0f11 !default;
-$pdf-invert: findColorInvert($pdf) !default;
 $custom-colors: (
   "twitter": (
     $twitter,
     $twitter-invert
-  ),
-  "pdf": (
-    $pdf,
-    $pdf-invert
   )
 );
 

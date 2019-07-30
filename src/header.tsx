@@ -7,7 +7,7 @@ export function Header() {
     <Navbar color="twitter">
       <Navbar.Brand>
         <Navbar.Item href="/">
-          <Title className="twitter-invert-color">tweet2pdf</Title>
+          <Title className="twitter-invert-color">tweet2img</Title>
         </Navbar.Item>
         <Navbar.Burger />
       </Navbar.Brand>

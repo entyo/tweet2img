@@ -7,9 +7,9 @@ export const TweetNotFound = "TweetNotFound" as const;
 
 export const InvalidArguments = "InvalidArguments" as const;
 
-export const FailedToGeneratePDF = "FailedToGeneratePDF" as const;
+export const FailedToGenerateImage = "FailedToGenerateImage" as const;
 
-export type ServerError = typeof FailedToGeneratePDF;
+export type ServerError = typeof FailedToGenerateImage;
 
 export type TweetURLError = typeof InvalidArguments | typeof TweetNotFound;
 
@@ -35,7 +35,7 @@ export const InvalidRequestMessage = "不正なリクエストです。";
 export const InternalServerErrorMessage =
   "サーバサイドでエラーが発生しました。";
 
-export type PDFErrorMessage =
+export type ImageErrorMessage =
   | typeof TweetNotFoundMessage
   | typeof InvalidRequestMessage
   | typeof InternalServerErrorMessage;

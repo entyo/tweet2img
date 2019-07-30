@@ -10,7 +10,7 @@ import {
   InvalidArguments,
   TweetNotFound,
   ValidatedTweetURL,
-  FailedToGeneratePDF,
+  FailedToGenerateImage,
   ServerError,
   TweetNotFoundMessage,
   InvalidRequestMessage,
@@ -22,7 +22,7 @@ import { isLeft } from "fp-ts/lib/Either";
 import { checkIfTheTweetExists } from "./twitter/client";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as TE from "fp-ts/lib/TaskEither";
-import { generatePdf } from "./pdf";
+import { generateImage } from "./png";
 import * as t from "io-ts";
 
 const config = functions.config();
@@ -63,14 +63,14 @@ function serverError<E = never>(
 }
 
 const sendError = (
-  err: TweetURLError | typeof FailedToGeneratePDF
+  err: TweetURLError | typeof FailedToGenerateImage
 ): H.Middleware<H.StatusOpen, H.ResponseEnded, never, void> => {
   switch (err) {
     case "TweetNotFound":
       return notFound(TweetNotFoundMessage);
     case "InvalidArguments":
       return badRequest(InvalidRequestMessage);
-    case "FailedToGeneratePDF":
+    case "FailedToGenerateImage":
       return serverError(InternalServerErrorMessage);
   }
 };
@@ -93,8 +93,7 @@ if (isLeft(variablesE)) {
         return origin && origin === ORIGIN
           ? callback(null, true)
           : callback(new Error(`This origin (${origin}) is not allowed`));
-      },
-      credentials: true
+      }
     })
   );
 
@@ -130,7 +129,7 @@ if (isLeft(variablesE)) {
       )
     );
 
-  const mapTweetURLToPDF = (
+  const mapTweetURLToImage = (
     url: ValidatedTweetURL
   ): H.Middleware<
     H.StatusOpen,
@@ -140,16 +139,16 @@ if (isLeft(variablesE)) {
   > =>
     H.fromTaskEither(
       pipe(
-        generatePdf(url),
+        generateImage(url),
         TE.mapLeft(e => {
           console.error(e);
-          return FailedToGeneratePDF;
+          return FailedToGenerateImage;
         })
       )
     );
 
-  const respondWithPdf = (
-    pdfBuffer: Buffer
+  const respondWithImage = (
+    imgBuffer: Buffer
   ): H.Middleware<
     H.StatusOpen,
     H.ResponseEnded,
@@ -159,25 +158,25 @@ if (isLeft(variablesE)) {
     pipe(
       H.status(H.Status.OK),
       H.ichain(() =>
-        H.header("Content-disposition", `inline; filename="${new Date()}.pdf"`)
+        H.header("Content-disposition", `inline; filename="${new Date()}.png"`)
       ),
-      H.ichain(() => H.header("Content-type", "application/pdf")),
+      H.ichain(() => H.contentType(H.MediaType.imagePNG)),
       H.ichain(() => H.closeHeaders()),
-      H.ichain(() => H.send(pdfBuffer.toString()))
+      H.ichain(() => H.send(imgBuffer as any))
     );
 
-  const getPdf = pipe(
+  const getImage = pipe(
     parseTweetURLFromQueryMiddleware,
     H.ichain(checkIfTheTweetExistsMiddleware),
-    H.ichain(mapTweetURLToPDF),
-    H.ichain(respondWithPdf)
+    H.ichain(mapTweetURLToImage),
+    H.ichain(respondWithImage)
   );
 
   app.get(
-    "/pdf",
+    "/img",
     toRequestHandler(
       pipe(
-        getPdf,
+        getImage,
         H.orElse(sendError)
       )
     )

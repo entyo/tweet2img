@@ -3,7 +3,7 @@ import { DEFAULTS } from "rbx/base/helpers/variables";
 
 import { createContext } from "react";
 
-const COLORS = [...DEFAULTS.colors, "pdf", "twitter"] as const;
+const COLORS = [...DEFAULTS.colors, "img", "twitter"] as const;
 
 export const themeValue = {
   transform: makeRootValidatingTransform({ colors: COLORS })

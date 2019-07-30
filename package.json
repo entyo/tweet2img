@@ -1,5 +1,5 @@
 {
-  "name": "tweet2pdf",
+  "name": "tweet2img",
   "version": "0.0.0",
   "description": "## .env",
   "main": "index.js",
@@ -52,12 +52,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/entyo/tweet2pdf.git"
+    "url": "git+https://github.com/entyo/tweet2img.git"
   },
   "author": "e_ntyo",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/entyo/tweet2pdf/issues"
+    "url": "https://github.com/entyo/tweet2img/issues"
   },
-  "homepage": "https://github.com/entyo/tweet2pdf#readme"
+  "homepage": "https://github.com/entyo/tweet2img#readme"
 }
