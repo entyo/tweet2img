@@ -3,22 +3,18 @@ import { ValidatedTweetURL } from '../model';
 import * as TE from 'fp-ts/lib/TaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
 import { errorHandler } from './util';
-import { setFontConfig } from './font';
 
 export function generateImage(
   tweetURL: ValidatedTweetURL
 ): TE.TaskEither<string, Buffer> {
   return pipe(
-    setFontConfig(),
-    TE.chain(() =>
-      TE.tryCatch(
-        () =>
-          puppeteer.launch({
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-            headless: true
-          }),
-        reason => errorHandler('puppeteer.launchが例外をthrowしました', reason)
-      )
+    TE.tryCatch(
+      () =>
+        puppeteer.launch({
+          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          headless: true
+        }),
+      reason => errorHandler('puppeteer.launchが例外をthrowしました', reason)
     ),
     TE.chain(browser =>
       TE.tryCatch(
@@ -63,6 +59,32 @@ export function generateImage(
               'page.$(\'#twitter-widget-0\')が例外をthrowしました',
               reason
             )
+        ),
+        TE.chain(widget =>
+          pipe(
+            TE.tryCatch(
+              () =>
+                page.evaluate(() => {
+                  const sheet = new CSSStyleSheet();
+                  sheet.addRule(
+                    '.Tweet',
+                    'font-family: \'Noto Sans JP\', sans-serif;'
+                  );
+                  const shadowRootParent = document.getElementById(
+                    'twitter-widget-0'
+                  );
+                  if (shadowRootParent && shadowRootParent.shadowRoot) {
+                    // http://var.blog.jp/archives/78952789.html
+                    (shadowRootParent.shadowRoot as ShadowRoot & { 'adoptedStyleSheets': Array<CSSStyleSheet> })[
+                      'adoptedStyleSheets'
+                    ] = [sheet];
+                  }
+                }),
+              reason =>
+                errorHandler('page.evaluate()が例外をthrowしました', reason)
+            ),
+            TE.map(() => widget)
+          )
         ),
         TE.chain(widget =>
           widget
@@ -115,6 +137,11 @@ function generateHTML(tweetURL: ValidatedTweetURL): string {
   return `
   <!DOCTYPE html>
   <html>
+    <head>
+      <style>
+        @import url("https://fonts.googleapis.com/css?family=Noto+Sans+JP&display=swap");
+      </style>
+    </head>
     <body>
       <script async src="https://platform.twitter.com/widgets.js" charset="utf-8">
       </script>
