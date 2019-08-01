@@ -2,27 +2,23 @@ import puppeteer from 'puppeteer';
 import { ValidatedTweetURL } from '../model';
 import * as TE from 'fp-ts/lib/TaskEither';
 import { pipe } from 'fp-ts/lib/pipeable';
-
-const errorHandler = (fallbackErrorMessage: string, reason?: unknown) => {
-  // Error | string | unknown
-  return reason && reason instanceof Error
-    ? reason.message
-    : typeof reason === 'string'
-    ? reason
-    : fallbackErrorMessage;
-};
+import { errorHandler } from './util';
+import { setFontConfig } from './font';
 
 export function generateImage(
   tweetURL: ValidatedTweetURL
 ): TE.TaskEither<string, Buffer> {
   return pipe(
-    TE.tryCatch(
-      () =>
-        puppeteer.launch({
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
-          headless: true
-        }),
-      reason => errorHandler('puppeteer.launchが例外をthrowしました', reason)
+    setFontConfig(),
+    TE.chain(() =>
+      TE.tryCatch(
+        () =>
+          puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            headless: true
+          }),
+        reason => errorHandler('puppeteer.launchが例外をthrowしました', reason)
+      )
     ),
     TE.chain(browser =>
       TE.tryCatch(

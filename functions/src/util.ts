@@ -8,3 +8,15 @@ export const panicWithErrorLog = (msg: string) =>
     error(msg),
     panic
   );
+
+export const errorHandler = (
+  fallbackErrorMessage: string,
+  reason?: unknown
+) => {
+  // Error | string | unknown
+  return reason && reason instanceof Error
+    ? reason.message
+    : typeof reason === 'string'
+    ? reason
+    : fallbackErrorMessage;
+};
