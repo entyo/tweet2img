@@ -34,7 +34,7 @@ export function generateImage(
       pipe(
         TE.tryCatch(
           () =>
-            page.setViewport({ width: 1920, height: 0, deviceScaleFactor: 2 }),
+            page.setViewport({ width: 1920, height: 0, deviceScaleFactor: 3 }),
           reason =>
             errorHandler('page.setViewportが例外をthrowしました', reason)
         ),
