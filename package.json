@@ -45,8 +45,9 @@
   "scripts": {
     "start": "firebase serve",
     "deploy": "firebase deploy",
-    "build:prod": "cross-env TS_NODE_PROJECT=\"tsconfig.webpack.json\" webpack --config webpack.config.ts --mode production",
-    "build:dev": "cross-env TS_NODE_PROJECT=\"tsconfig.webpack.json\" webpack --config webpack.config.ts --mode development",
+    "build:prod": "env MODE=production cross-env TS_NODE_PROJECT=\"tsconfig.webpack.json\" webpack --config webpack.config.ts --mode $MODE",
+    "build:test": "env MODE=test cross-env TS_NODE_PROJECT=\"tsconfig.webpack.json\" webpack --config webpack.config.ts --mode production",
+    "build:dev": "env MODE=development cross-env TS_NODE_PROJECT=\"tsconfig.webpack.json\" webpack --config webpack.config.ts --mode $MODE",
     "build:functions": "npm run --prefix functions build"
   },
   "repository": {

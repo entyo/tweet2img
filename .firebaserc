@@ -1,5 +1,6 @@
 {
   "projects": {
-    "tweet2img": "tweet2img"
+    "tweet2img": "tweet2img",
+    "test": "tweet2img-test"
   }
 }

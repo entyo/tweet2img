@@ -29,6 +29,8 @@ const config = functions.config();
 const variablesTE = getEnvironmentVariable(
   config.runtime && config.runtime.env === 'production'
     ? 'production'
+    : config.runtime && config.runtime.env === 'test'
+    ? 'test'
     : 'development'
 );
 

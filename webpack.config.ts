@@ -6,10 +6,15 @@ import webpack, { DefinePlugin } from "webpack";
 
 module.exports = (_, argv: webpack.Configuration) => {
   // production -> '.env'
+  // test -> '.env.test'
   // development/none -> '.env.dev'
+  const MODE = process.env.MODE;
+  if (!MODE) {
+    throw new Error("環境変数$MODEが未設定です");
+  }
   const path = join(
     __dirname,
-    argv.mode === "production" ? ".env" : ".env.dev"
+    MODE === "production" ? ".env" : MODE === "test" ? ".env.test" : ".env.dev"
   );
 
   const fileEnv = dotenv.config({ path }).parsed;

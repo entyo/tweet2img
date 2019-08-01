@@ -31,3 +31,4 @@ public/*.woff
 public/*.png
 .env
 .env.dev
+.env.test

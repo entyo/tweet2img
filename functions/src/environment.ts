@@ -10,12 +10,12 @@ export type EnvironmentVariable = {
 };
 
 export function getEnvironmentVariable(
-  env: 'development' | 'production'
+  env: 'development' | 'production' | 'test'
 ): IOEither<Error, EnvironmentVariable> {
   const path = join(
     __dirname,
     '..',
-    env === 'production' ? '.env' : '.env.dev'
+    env === 'production' ? '.env' : env === 'test' ? '.env.test' : '.env.dev'
   );
   const { parsed } = dotenv.config({ path });
   return fromEither(
